@@ -2,15 +2,24 @@
   "manifestVersion": "2.2",
   "contracts": {},
   "dependencies": {},
-  "name": "real-estate-marketplace",
+  "name": "@rem/contracts",
   "version": "1.0.0",
   "compiler": {
     "compilerSettings": {
-      "optimizer": {}
+      "optimizer": {
+        "enabled": false,
+        "runs": "200"
+      }
     },
     "typechain": {
-      "enabled": false
-    }
+      "enabled": true,
+      "outDir": "./types/contracts/",
+      "target": "truffle"
+    },
+    "manager": "openzeppelin",
+    "solcVersion": "0.5.17",
+    "artifactsDir": "build/contracts",
+    "contractsDir": "contracts"
   },
   "telemetryOptIn": false
 }
