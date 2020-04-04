@@ -57,7 +57,9 @@ describe('DREMToken', function () {
         });
 
         it('should return contract owner', async () => {
-            throw new Error('Not implemented yet');
+            const account = await instance.owner();
+
+            expect(account).to.be.equal(account);
         });
     });
 });
