@@ -5,7 +5,7 @@ import chaiAsPromised from 'chai-as-promised';
 import 'mocha';
 import TransactionResponse = Truffle.TransactionResponse;
 
-const { BN } = require('@openzeppelin/test-helpers');
+const { BN, constants } = require('@openzeppelin/test-helpers');
 
 const DREMToken: DREMTokenContract = contract.fromArtifact('DREMToken');
 
@@ -36,7 +36,7 @@ describe('DREMToken', function () {
     });
 
     describe('erc721 specification properties', () => {
-        describe.only('when approving', () => {
+        describe('when approving', () => {
             const tokenId = 7;
 
             beforeEach(async () => {
@@ -81,8 +81,76 @@ describe('DREMToken', function () {
             });
         });
 
-        it('should transfer token from one owner to another', async () => {
-            throw new Error('Not implemented yet');
+        describe('when transferring', () => {
+            const tokenId = 21;
+
+            beforeEach(async () => {
+                await instance.mint(user1, tokenId, { from: owner });
+                await instance.approve(user2, tokenId, { from: user1 });
+            });
+
+            it('should transfer ownership of token', async () => {
+                const oldOwner = await instance.ownerOf(tokenId);
+                await instance.transferFrom(user1, user2, tokenId, { from: user1 });
+                const newOwner = await instance.ownerOf(tokenId);
+
+                expect(oldOwner).to.not.be.equal(newOwner);
+                expect(oldOwner).to.be.equal(user1);
+                expect(newOwner).to.be.equal(user2);
+            });
+
+            it('should update token count', async () => {
+                await instance.transferFrom(user1, user2, tokenId, { from: user1 });
+                const user1Balance = await instance.balanceOf(user1);
+                const user2Balance = await instance.balanceOf(user2);
+
+                expect(user1Balance).to.be.bignumber.equal('0');
+                expect(user2Balance).to.be.bignumber.equal('1');
+            });
+
+            it('should not change total supply', async () => {
+                const totalSupplyBefore = await instance.totalSupply();
+                await instance.transferFrom(user1, user2, tokenId, { from: user1 });
+                const totalSupplyAfter = await instance.totalSupply();
+
+                expect(totalSupplyBefore).to.be.bignumber.equal(totalSupplyAfter);
+            });
+
+            it('should get token by new owner index', async () => {
+                await instance.transferFrom(user1, user2, tokenId, { from: user1 });
+                const firstUser2Token = await instance.tokenOfOwnerByIndex(user2, 0);
+
+                expect(firstUser2Token).to.be.bignumber.equal(new BN(tokenId));
+            });
+
+            it('should emit Transfer event', async () => {
+                const tx = await instance.transferFrom(user1, user2, tokenId, { from: user1 });
+
+                const log = tx.logs[0];
+                expect(log.event).to.be.equal('Transfer');
+                expect(log.args).to.have.property('from', user1);
+                expect(log.args).to.have.property('to', user2);
+                expect(log.args.tokenId).to.be.bignumber.equal(new BN(tokenId));
+            });
+
+            it('should clear approvals', async () => {
+                await instance.transferFrom(user1, user2, tokenId, { from: user1 });
+                const approved = await instance.getApproved(tokenId);
+
+                expect(approved).to.be.equal(constants.ZERO_ADDRESS);
+            });
+
+            it('should fail sender if from is not owner', async () => {
+                await expect(instance.transferFrom(user3, user2, tokenId, { from: user1 }))
+                    .to.eventually.be.rejectedWith(Error)
+                    .with.property('reason', 'From address must be owner of the token');
+            });
+
+            it('should fail sender if transferring to zero address', async () => {
+                await expect(instance.transferFrom(user1, constants.ZERO_ADDRESS, tokenId, { from: user1 }))
+                    .to.eventually.be.rejectedWith(Error)
+                    .with.property('reason', 'Receiver address must be non-zero');
+            });
         });
     });
 
@@ -131,9 +199,9 @@ describe('DREMToken', function () {
         });
 
         it('should have stored token by owner index', async () => {
-            const firstUer1Token = await instance.tokenOfOwnerByIndex(user1, 0);
+            const firstUser1Token = await instance.tokenOfOwnerByIndex(user1, 0);
 
-            expect(firstUer1Token).to.be.bignumber.equal(new BN(tokenId));
+            expect(firstUser1Token).to.be.bignumber.equal(new BN(tokenId));
         });
     });
 
