@@ -61,5 +61,29 @@ describe('DREMToken', function () {
 
             expect(account).to.be.equal(account);
         });
+
+        it('can transfer ownership to new account', async () => {
+            const newOwner = accounts[1];
+
+            const tx = await instance.transferOwnership(newOwner, { from: owner });
+            const currentOwner = await instance.owner();
+
+            expect(currentOwner).to.be.equal(newOwner);
+
+            const log = tx.logs[0];
+            expect(log.event).to.be.equal('OwnershipTransferred');
+            expect(log.args).to.have.property('previousOwner', owner);
+            expect(log.args).to.have.property('newOwner', newOwner);
+        });
+
+        it('should not allow ownership transfer when caller is not current owner', async () => {
+            try {
+                const newOwner = accounts[1];
+                await instance.transferOwnership(newOwner, { from: newOwner });
+                expect.fail('Should fail');
+            } catch (e) {
+                expect(e).to.have.property('reason', 'Only owner allowed');
+            }
+        });
     });
 });
