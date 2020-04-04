@@ -53,9 +53,9 @@ describe('DREMToken', function () {
         });
     });
 
-    describe('after minting token', () => {
+    describe('after minting first token', () => {
         let tx: TransactionResponse;
-        const tokenId = 1;
+        const tokenId = 13;
 
         beforeEach(async () => {
             tx = await instance.mint(user1, tokenId, { from: owner });
@@ -78,12 +78,29 @@ describe('DREMToken', function () {
         it('should have balance of 1', async () => {
             const balance = await instance.balanceOf(user1);
 
-            expect(balance).to.be.bignumber.equal(new BN(1));
+            expect(balance).to.be.bignumber.equal('1');
         });
 
         it('should have uri generated', async () => {
             const uri = await instance.tokenURI(tokenId);
             expect(uri).to.be.equal(token.baseUri + tokenId);
+        });
+
+        it('should have total supply equal 1', async () => {
+            const totalSupply = await instance.totalSupply();
+            expect(totalSupply).to.be.bignumber.equal('1');
+        });
+
+        it('should have stored token by index', async () => {
+            const firstToken = await instance.tokenByIndex(0);
+
+            expect(firstToken).to.be.bignumber.equal(new BN(tokenId));
+        });
+
+        it('should have stored token by owner index', async () => {
+            const firstUer1Token = await instance.tokenOfOwnerByIndex(user1, 0);
+
+            expect(firstUer1Token).to.be.bignumber.equal(new BN(tokenId));
         });
     });
 
@@ -118,8 +135,6 @@ describe('DREMToken', function () {
                 expect(log.event).to.be.equal('Paused');
                 expect(log.args).to.have.property('account', owner);
             });
-
-
         });
 
         describe('when unpausing', async () => {
