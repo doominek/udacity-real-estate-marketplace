@@ -50,8 +50,8 @@ describe('DREMToken', function () {
                 expect(approved).to.be.equal(user2);
             });
 
-            it('should be allowed if approved for all', async () => {
-                await instance.setApprovalForAll(user2, true, { from: user1 });
+            it('should be allowed if called by approved operator', async () => {
+                await instance.setApprovalForAll(user3, true, { from: user1 });
                 await instance.approve(user2, tokenId, { from: user3 });
                 const approved = await instance.getApproved(tokenId);
 
@@ -71,7 +71,7 @@ describe('DREMToken', function () {
             it('should not be allowed for non owner', async () => {
                 await expect(instance.approve(user2, tokenId, { from: user2 }))
                     .to.eventually.be.rejectedWith(Error)
-                    .with.property('reason', 'Sender must be owner or must be approved for all');
+                    .with.property('reason', 'Sender must be owner or approved operator');
             });
 
             it('should fail when approving for current owner', async () => {
