@@ -18,7 +18,7 @@ const token = {
 use(chaiAsPromised);
 
 describe('DREMToken', function () {
-    const [ owner, user1 ] = accounts;
+    const [ owner, user1, user2, user3 ] = accounts;
     let instance: DREMTokenInstance;
 
     beforeEach(async () => {
@@ -35,17 +35,50 @@ describe('DREMToken', function () {
         expect(baseTokenUri).to.be.equal(token.baseUri);
     });
 
-    describe('match erc721 spec', () => {
-        it('should return total supply', async () => {
-            throw new Error('Not implemented yet');
-        });
+    describe('erc721 specification properties', () => {
+        describe.only('when approving', () => {
+            const tokenId = 7;
 
-        it('should get token balance', async () => {
-            throw new Error('Not implemented yet');
-        });
+            beforeEach(async () => {
+                await instance.mint(user1, tokenId, { from: owner });
+            });
 
-        // token uri should be complete i.e: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/1
-        it('should return token uri', async () => {
+            it('should be allowed for the owner', async () => {
+                await instance.approve(user2, tokenId, { from: user1 });
+                const approved = await instance.getApproved(tokenId);
+
+                expect(approved).to.be.equal(user2);
+            });
+
+            it('should be allowed if approved for all', async () => {
+                await instance.setApprovalForAll(user2, true, { from: user1 });
+                await instance.approve(user2, tokenId, { from: user3 });
+                const approved = await instance.getApproved(tokenId);
+
+                expect(approved).to.be.equal(user2);
+            });
+
+            it('should emit Approval event', async () => {
+                const tx = await instance.approve(user2, tokenId, { from: user1 });
+
+                const log = tx.logs[0];
+                expect(log.event).to.be.equal('Approval');
+                expect(log.args).to.have.property('owner', user1);
+                expect(log.args).to.have.property('approved', user2);
+                expect(log.args.tokenId).to.be.bignumber.equal(new BN(tokenId));
+            });
+
+            it('should not be allowed for non owner', async () => {
+                await expect(instance.approve(user2, tokenId, { from: user2 }))
+                    .to.eventually.be.rejectedWith(Error)
+                    .with.property('reason', 'Sender must be owner or must be approved for all');
+            });
+
+            it('should fail when approving for current owner', async () => {
+                await expect(instance.approve(user1, tokenId, { from: user1 }))
+                    .to.eventually.be.rejectedWith(Error)
+                    .with.property('reason', 'Token is already owned by receiver');
+            });
         });
 
         it('should transfer token from one owner to another', async () => {

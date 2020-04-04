@@ -150,20 +150,18 @@ contract ERC721 is Pausable, ERC165 {
     }
 
     //    @dev Approves another address to transfer the given token ID
-    function approve(address to, uint256 tokenId) public {
+    function approve(address to, uint256 tokenId) public onlyForExistingToken(tokenId) {
+        address owner = ownerOf(tokenId);
+        require(owner != to, "Token is already owned by receiver");
+        require(owner == msg.sender || isApprovedForAll(owner, to), "Sender must be owner or must be approved for all");
 
-        // TODO require the given address to not be the owner of the tokenId
+        _tokenApprovals[tokenId] = to;
 
-        // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
-
-        // TODO add 'to' address to token approvals
-
-        // TODO emit Approval Event
-
+        emit Approval(owner, to, tokenId);
     }
 
     function getApproved(uint256 tokenId) public view returns (address) {
-        // TODO return token approval if it exists
+        return _tokenApprovals[tokenId];
     }
 
     /**
