@@ -1,6 +1,7 @@
 import { accounts, contract } from '@openzeppelin/test-environment';
 import { DREMTokenContract, DREMTokenInstance } from '../types/contracts';
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import 'mocha';
 
 const { BN } = require('@openzeppelin/test-helpers');
@@ -12,6 +13,8 @@ const token = {
     symbol: 'dREM',
     baseUri: 'https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/'
 };
+
+use(chaiAsPromised);
 
 describe('DREMToken', function () {
     const [ owner ] = accounts;
@@ -58,22 +61,17 @@ describe('DREMToken', function () {
         });
 
         it('should not allow unpausing when unpaused', async () => {
-            try {
-                await instance.unpause({ from: owner });
-                expect.fail('Should fail');
-            } catch (e) {
-                expect(e).to.have.property('reason', 'Only allowed when paused');
-            }
+            await expect(instance.unpause({ from: owner }))
+                .to.eventually.be.rejectedWith(Error)
+                .with.property('reason', 'Only allowed when paused');
+
         });
 
         describe('when pausing', async () => {
             it('should not be allowed for non owner', async () => {
-                try {
-                    await instance.pause({ from: accounts[1] });
-                    expect.fail('Should fail');
-                } catch (e) {
-                    expect(e).to.have.property('reason', 'Only owner allowed');
-                }
+                await expect(instance.pause({ from: accounts[1] }))
+                    .to.eventually.be.rejectedWith(Error)
+                    .with.property('reason', 'Only owner allowed');
             });
 
             it('should update paused state', async () => {
@@ -96,12 +94,9 @@ describe('DREMToken', function () {
             });
 
             it('should not be allowed for non owner', async () => {
-                try {
-                    await instance.unpause({ from: accounts[1] });
-                    expect.fail('Should fail');
-                } catch (e) {
-                    expect(e).to.have.property('reason', 'Only owner allowed');
-                }
+                await expect(instance.unpause({ from: accounts[1] }))
+                    .to.eventually.be.rejectedWith(Error)
+                    .with.property('reason', 'Only owner allowed');
             });
 
             it('should update paused state', async () => {
@@ -143,13 +138,10 @@ describe('DREMToken', function () {
         });
 
         it('should not allow ownership transfer when caller is not current owner', async () => {
-            try {
-                const newOwner = accounts[1];
-                await instance.transferOwnership(newOwner, { from: newOwner });
-                expect.fail('Should fail');
-            } catch (e) {
-                expect(e).to.have.property('reason', 'Only owner allowed');
-            }
+            const newOwner = accounts[1];
+            await expect(instance.transferOwnership(newOwner, { from: newOwner }))
+                .to.eventually.be.rejectedWith(Error)
+                .with.property('reason', 'Only owner allowed');
         });
     });
 });
