@@ -3,6 +3,7 @@ import { DREMTokenContract, DREMTokenInstance } from '../types/contracts';
 import { expect, use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import 'mocha';
+import TransactionResponse = Truffle.TransactionResponse;
 
 const { BN } = require('@openzeppelin/test-helpers');
 
@@ -17,7 +18,7 @@ const token = {
 use(chaiAsPromised);
 
 describe('DREMToken', function () {
-    const [ owner ] = accounts;
+    const [ owner, user1 ] = accounts;
     let instance: DREMTokenInstance;
 
     beforeEach(async () => {
@@ -34,7 +35,7 @@ describe('DREMToken', function () {
         expect(baseTokenUri).to.be.equal(token.baseUri);
     });
 
-    describe('match erc721 spec', function () {
+    describe('match erc721 spec', () => {
         it('should return total supply', async () => {
             throw new Error('Not implemented yet');
         });
@@ -45,11 +46,44 @@ describe('DREMToken', function () {
 
         // token uri should be complete i.e: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/1
         it('should return token uri', async () => {
-            throw new Error('Not implemented yet');
         });
 
         it('should transfer token from one owner to another', async () => {
             throw new Error('Not implemented yet');
+        });
+    });
+
+    describe('after minting token', () => {
+        let tx: TransactionResponse;
+        const tokenId = 1;
+
+        beforeEach(async () => {
+            tx = await instance.mint(user1, tokenId, { from: owner });
+        });
+
+        it('should generate transfer event', async () => {
+            const log = tx.logs[0];
+            expect(log.event).to.be.equal('Transfer');
+            expect(log.args).to.have.property('from', owner);
+            expect(log.args).to.have.property('to', user1);
+            expect(log.args.tokenId).to.be.bignumber.equal(new BN(tokenId));
+        });
+
+        it('should have owner set to the recipient', async () => {
+            const tokenOwner = await instance.ownerOf(tokenId);
+
+            expect(tokenOwner).to.be.equal(user1);
+        });
+
+        it('should have balance of 1', async () => {
+            const balance = await instance.balanceOf(user1);
+
+            expect(balance).to.be.bignumber.equal(new BN(1));
+        });
+
+        it('should have uri generated', async () => {
+            const uri = await instance.tokenURI(tokenId);
+            expect(uri).to.be.equal(token.baseUri + tokenId);
         });
     });
 
@@ -113,8 +147,10 @@ describe('DREMToken', function () {
     });
 
     describe('ownership properties', () => {
-        it('should fail when minting when address is not contract owner', async () => {
-            throw new Error('Not implemented yet');
+        it('should fail when minting by non contract owner', async () => {
+            await expect(instance.mint(user1, 1, { from: user1 }))
+                .to.eventually.be.rejectedWith(Error)
+                .with.property('reason', 'Only owner allowed');
         });
 
         it('should return contract owner', async () => {
@@ -138,8 +174,7 @@ describe('DREMToken', function () {
         });
 
         it('should not allow ownership transfer when caller is not current owner', async () => {
-            const newOwner = accounts[1];
-            await expect(instance.transferOwnership(newOwner, { from: newOwner }))
+            await expect(instance.transferOwnership(user1, { from: user1 }))
                 .to.eventually.be.rejectedWith(Error)
                 .with.property('reason', 'Only owner allowed');
         });
