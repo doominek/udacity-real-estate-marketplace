@@ -4,7 +4,7 @@ import "./Verifier.sol";
 import "./ERC721Mintable.sol";
 
 
-contract SolnSquareVerifier is DREMToken, Verifier {
+contract SolnSquareVerifier is DREMToken {
     struct Solution {
         bytes32 key;
         uint256 tokenId;
@@ -16,6 +16,12 @@ contract SolnSquareVerifier is DREMToken, Verifier {
     mapping(bytes32 => bool) private _submittedSolutions;
 
     event SolutionAdded(uint256 indexed tokenId, address indexed submitter, bytes32 key);
+
+    Verifier private _verifier;
+
+    constructor(address verifier) public {
+        _verifier = Verifier(verifier);
+    }
 
     function _addSolution(uint256 tokenId, bytes32 key) internal {
         _solutions.push(Solution({key : key, tokenId : tokenId, submitter : msg.sender}));
@@ -40,7 +46,7 @@ contract SolnSquareVerifier is DREMToken, Verifier {
         uint[2][2] memory b,
         uint[2] memory c,
         uint[2] memory input) public {
-        require(verifyTx(a, b, c, input), "Invalid solution");
+        require(_verifier.verifyTx(a, b, c, input), "Invalid solution");
         bytes32 key = _solutionKey(a, b, c, input);
         require(_isNotSubmitted(key), "Solution already submitted");
 

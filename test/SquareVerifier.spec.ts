@@ -11,6 +11,8 @@ const Verifier: VerifierContract = contract.fromArtifact('Verifier');
 use(chaiAsPromised);
 
 describe('Verifier', function () {
+    this.timeout(5000);
+
     const [ owner ] = accounts;
     let instance: VerifierInstance;
 
