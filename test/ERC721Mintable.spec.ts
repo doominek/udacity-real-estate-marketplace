@@ -50,8 +50,74 @@ describe('DREMToken', function () {
         });
     });
 
+    describe('pausable properties', () => {
+        it('should be initially unpaused', async () => {
+            const paused = await instance.isPaused();
 
-    describe('have ownership properties', function () {
+            expect(paused).to.be.false;
+        });
+
+        it('should not allow unpausing when unpaused', async () => {
+            try {
+                await instance.unpause({ from: owner });
+                expect.fail('Should fail');
+            } catch (e) {
+                expect(e).to.have.property('reason', 'Only allowed when paused');
+            }
+        });
+
+        describe('when pausing', async () => {
+            it('should not be allowed for non owner', async () => {
+                try {
+                    await instance.pause({ from: accounts[1] });
+                    expect.fail('Should fail');
+                } catch (e) {
+                    expect(e).to.have.property('reason', 'Only owner allowed');
+                }
+            });
+
+            it('should update paused state', async () => {
+                const tx = await instance.pause({ from: owner });
+                const paused = await instance.isPaused();
+
+                expect(paused).to.be.true;
+
+                const log = tx.logs[0];
+                expect(log.event).to.be.equal('Paused');
+                expect(log.args).to.have.property('account', owner);
+            });
+
+
+        });
+
+        describe('when unpausing', async () => {
+            beforeEach(async () => {
+                await instance.pause({ from: owner });
+            });
+
+            it('should not be allowed for non owner', async () => {
+                try {
+                    await instance.unpause({ from: accounts[1] });
+                    expect.fail('Should fail');
+                } catch (e) {
+                    expect(e).to.have.property('reason', 'Only owner allowed');
+                }
+            });
+
+            it('should update paused state', async () => {
+                const tx = await instance.unpause({ from: owner });
+                const paused = await instance.isPaused();
+
+                expect(paused).to.be.false;
+
+                const log = tx.logs[0];
+                expect(log.event).to.be.equal('Unpaused');
+                expect(log.args).to.have.property('account', owner);
+            });
+        });
+    });
+
+    describe('ownership properties', () => {
         it('should fail when minting when address is not contract owner', async () => {
             throw new Error('Not implemented yet');
         });
