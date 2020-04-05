@@ -4,7 +4,7 @@ const Web3 = require('web3');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const secrets = require('../secrets.json');
-const { mnemonic, provider, solnSquareVerifierAddress } = secrets.development;
+const { mnemonic, provider, solnSquareVerifierAddress } = secrets.rinkeby;
 
 const hdWalletProvider = new HDWalletProvider(mnemonic, provider);
 const web3 = new Web3(hdWalletProvider);
@@ -23,7 +23,7 @@ const mint = async () => {
         const proof = proofs[i].proof;
         const inputs = proofs[i].inputs;
         const tokenId = i + 1;
-        const account = accounts[i + 1];
+        const account = accounts[(i % 3) + 1];
 
         try {
             console.log(`Trying to mint token ${tokenId} for account ${account}`);
