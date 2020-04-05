@@ -1,0 +1,21 @@
+{
+  "contracts": {},
+  "solidityLibs": {},
+  "proxies": {
+    "real-estate-marketplace/Verifier": [
+      {
+        "address": "0xA3E2139e6f800B7050ad8E70E1eA89416f211e08",
+        "kind": "NonProxy",
+        "bytecodeHash": "15f6cf60222955d735208b90b536daff7fcfa2705d00178f6c259aa75e5a17af"
+      }
+    ],
+    "real-estate-marketplace/SolnSquareVerifier": [
+      {
+        "address": "0x945Fb77A041E1769053EcF60C9F73E97Fd765DA7",
+        "kind": "NonProxy",
+        "bytecodeHash": "3499009dd5796285ba0328ec63d539c89bb870efa536ceb31dba18b15bc0c7be"
+      }
+    ]
+  },
+  "manifestVersion": "2.2"
+}
