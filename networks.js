@@ -1,4 +1,4 @@
-const { provider, mnemonic } = require('./secrets.json');
+const { rinkeby } = require('./secrets.json');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
             networkId: '*',
         },
         rinkeby: {
-            provider: () => new HDWalletProvider(mnemonic, provider),
+            provider: () => new HDWalletProvider(rinkeby.mnemonic, rinkeby.provider),
             networkId: 4,
             gasPrice: 10e9
         }
