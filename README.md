@@ -6,7 +6,7 @@ that allows trading real estates.
 
 ## Running project
 
-To run the project please use the following script:
+To run the project please use the following:
 ```shell script
 npm install
 npm run compile
@@ -17,15 +17,19 @@ To run tests please execute the following:
 npm run test
 ```
 
-
 ## Deployment details
 
-* token name: *Dom's Real Estate Marektplace*
-* token symbol: *dREM*
-* token tracker: https://rinkeby.etherscan.io/token/0x945Fb77A041E1769053EcF60C9F73E97Fd765DA7
-* contract address: https://rinkeby.etherscan.io/address/0x945Fb77A041E1769053EcF60C9F73E97Fd765DA7
+* Token 
+  * name: *Dom's Real Estate Marektplace*
+  * symbol: *dREM*
+  * Rinkeby tracker: https://rinkeby.etherscan.io/token/0x945Fb77A041E1769053EcF60C9F73E97Fd765DA7
+* SolnSquareVerifier contract: 
+  * Rinkeby deployment: https://rinkeby.etherscan.io/address/0x945Fb77A041E1769053EcF60C9F73E97Fd765DA7
+  * ABI (after successful compilation) in `build/contracts/SolnSquareVerifier.json` 
+* Verifier contract: 
+  * Rinkeby deployment: https://rinkeby.etherscan.io/address/0xA3E2139e6f800B7050ad8E70E1eA89416f211e08
+  * ABI (after successful compilation) in `build/contracts/Verifier.json` 
 * OpenSea storefront: https://rinkeby.opensea.io/assets/doms-real-estate-marketplace 
-
 
 ## Tools/Libraries used
 
