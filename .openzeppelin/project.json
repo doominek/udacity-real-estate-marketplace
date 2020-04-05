@@ -1,8 +1,11 @@
 {
   "manifestVersion": "2.2",
-  "contracts": {},
+  "contracts": {
+    "Verifier": "Verifier",
+    "SolnSquareVerifier": "SolnSquareVerifier"
+  },
   "dependencies": {},
-  "name": "@rem/contracts",
+  "name": "real-estate-marketplace",
   "version": "1.0.0",
   "compiler": {
     "compilerSettings": {

@@ -1,4 +1,7 @@
 **/node_modules
 .idea
-.openzeppelin/.session
 types
+
+# OpenZeppelin
+.openzeppelin/dev-*.json
+.openzeppelin/.session
