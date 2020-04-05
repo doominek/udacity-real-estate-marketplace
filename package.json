@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.spec.ts --exit"
+    "clean": "rm -rf build",
+    "compile": "oz compile",
+    "test": "npm run clean && npm run compile && mocha -r ts-node/register test/**/*.spec.ts --exit"
   },
   "keywords": [],
   "author": "Dominik Flisak <d.flisak@gmail.com>",
